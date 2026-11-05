@@ -1,0 +1,63 @@
+<!doctype html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Arduino дыбыс сенсоры</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2f6fc;color:#172033;font:16px/1.6 Arial,sans-serif}.hero{padding:40px 20px;background:linear-gradient(130deg,#10233f,#2563eb);color:white}.wrap{max-width:1000px;margin:auto}h1{font-size:clamp(28px,5vw,44px);line-height:1.15}h2{margin-top:0;color:#10233f}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{padding:6px 12px;border:1px solid #ffffff55;border-radius:30px;background:#ffffff18}main{padding:24px 16px}section{background:white;border:1px solid #e2e8f0;border-radius:18px;padding:22px;margin:0 0 18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.tile,.pin{background:#eff6ff;border-radius:13px;padding:15px}.tile p,.muted{color:#64748b;font-size:14px}.flow{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}.decision{text-align:center;padding:20px;border-radius:14px;font-weight:bold}.yes{background:#dcfce7;color:#166534}.no{background:#fee2e2;color:#991b1b}.pins{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.pin b{display:block;color:#2563eb;font-size:19px}pre{background:#0b1220;color:#dbeafe;padding:16px;border-radius:12px;overflow:auto;font:13px/1.6 Consolas,monospace}.note{background:#fff7ed;border-left:4px solid #f97316;padding:12px;border-radius:8px;color:#7c2d12}.demo{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}.lamp{width:72px;height:72px;margin:12px auto;border-radius:50%;background:#94a3b8}.lamp.on{background:#22c55e;box-shadow:0 0 24px #22c55e88}.big{text-align:center;font-size:30px;font-weight:bold}button{background:#2563eb;color:white;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}.range{width:100%;accent-color:#2563eb}footer{text-align:center;color:#64748b;padding:20px}@media(max-width:680px){.grid,.pins{grid-template-columns:1fr}.flow,.demo{grid-template-columns:1fr}.flow span{transform:rotate(90deg);text-align:center}}
+</style></head><body>
+<header class="hero"><div class="wrap"><small>ARDUINO • GOOGLE COLAB • STEM</small><h1>Дыбыс сенсоры және LED индикаторы</h1><p>Дыбыс мәнін оқып, 500 шекті көрсеткішпен салыстыратын автоматты жүйе.</p><div class="chips"><span class="chip">Сенсор A0</span><span class="chip">LED D13</span><span class="chip">Шек 500</span><span class="chip">Serial 9600</span></div></div></header>
+<main class="wrap">
+<section><h2>1. Жобаның мақсаты</h2><p>Дыбыс сенсорының аналогтық көрсеткішін оқып, мән шектен асқанда LED шамын автоматты қосу.</p><div class="grid"><div class="tile"><b>01 • Өлшеу</b><p>A0 портынан analogRead() арқылы сенсор мәнін алу.</p></div><div class="tile"><b>02 • Салыстыру</b><p>Мәнді 500 шекті көрсеткішімен тексеру.</p></div><div class="tile"><b>03 • Басқару</b><p>HIGH — LED жанады; LOW — өшеді.</p></div></div></section>
+<section><h2>2. Инфографика — алгоритм</h2><div class="flow"><div class="decision yes">Дыбыс &gt; 500<br>LED ЖАНАДЫ</div><span>⇄</span><div class="decision no">Дыбыс ≤ 500<br>LED ӨШЕДІ</div></div></section>
+<section><h2>3. Қосылу порттары</h2><div class="pins"><div class="pin"><b>AO → A0</b><small>Аналогтық сенсор шығысы</small></div><div class="pin"><b>LED → D13</b><small>Жарық диодын басқару</small></div><div class="pin"><b>VCC / GND</b><small>Қорек және ортақ жер</small></div></div><p class="note">Сенсордағы нақты pin атауларын тексеріңіз. Сыртқы LED үшін резистор қолданыңыз.</p></section>
+<section><h2>4. Arduino C++ коды (Arduino IDE)</h2><pre><code>int soundSensor = A0;
+int ledPin = 13;
+int threshold = 500;
+
+void setup() {
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int sensorValue = analogRead(soundSensor);
+  Serial.println(sensorValue);
+
+  if (sensorValue > threshold) {
+    digitalWrite(ledPin, HIGH); // Шам жанады
+  } else {
+    digitalWrite(ledPin, LOW);  // Шам өшеді
+  }
+  delay(10);
+}</code></pre></section>
+<section><h2>5. Google Colab — Python симуляциясы</h2><p>Colab-та сенсор орнына мысал мәндер қолданылады. Код ұяшықтарын ретімен орындаңыз.</p><h3>5.1 Сенсор мәндері</h3><pre><code>threshold = 500
+sensor_values = [120, 260, 480, 520, 650, 430, 700, 310, 510, 180]
+
+led_states = []
+for value in sensor_values:
+    state = "ЖАНАДЫ" if value > threshold else "ӨШІК"
+    led_states.append(state)
+    print(f"Дыбыс: {value} | LED: {state}")</code></pre><h3>5.2 Диаграмма</h3><pre><code>import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 5))
+plt.plot(range(1, len(sensor_values)+1), sensor_values,
+         marker="o", label="Сенсор мәні")
+plt.axhline(threshold, linestyle="--", label=f"Шек = {threshold}")
+plt.xlabel("Өлшеу нөмірі")
+plt.ylabel("Дыбыс сенсорының мәні")
+plt.title("Arduino дыбыс сенсоры — симуляция")
+plt.xticks(range(1, len(sensor_values)+1))
+plt.grid(True)
+plt.legend()
+plt.show()</code></pre><h3>5.3 Нәтиже кестесі</h3><pre><code>import pandas as pd
+
+df = pd.DataFrame({
+    "Өлшеу": range(1, len(sensor_values)+1),
+    "Дыбыс мәні": sensor_values,
+    "LED күйі": led_states
+})
+display(df)</code></pre><p class="note">Google Colab Arduino A0/D13 порттарына стандартты түрде тікелей қосылмайды. Colab — Python симуляциясы; нақты платаға код Arduino IDE арқылы жүктеледі.</p></section>
+<section><h2>6. Интерактивті LED демо</h2><div class="demo"><div><label>Дыбыс мәні: <b id="value">420</b></label><input id="slider" class="range" type="range" min="0" max="1023" value="420"><p id="msg">500-ден төмен: LED өшірулі</p><button id="loud">Дыбысты арттыру (демо)</button><p class="muted">Слайдерді жылжытып, LED күйін бақылаңыз.</p></div><div><div id="lamp" class="lamp"></div><div id="lampText" class="big">OFF</div><p class="muted" style="text-align:center">Виртуалды LED</p></div></div></section>
+<section><h2>7. Қорытынды</h2><p>Жоба сенсордан дерек оқу, шартты оператор арқылы шешім қабылдау және LED басқару принциптерін көрсетеді. <code>threshold</code> мәнін өзгерту арқылы сезімталдықты реттеуге болады.</p></section></main><footer>Arduino дыбыс сенсоры • оқу жобасы</footer>
+<script>
+const slider=document.getElementById('slider');
+function update(){const v=Number(slider.value),on=v>500;document.getElementById('value').textContent=v;document.getElementById('msg').textContent=on?'500-ден жоғары: LED жанады':'500 немесе төмен: LED өшірулі';document.getElementById('lamp').className='lamp'+(on?' on':'');document.getElementById('lampText').textContent=on?'ON':'OFF'}
+slider.addEventListener('input',update);document.getElementById('loud').onclick=()=>{slider.value=650;update()};update();
+</script></body></html>
